@@ -29,36 +29,11 @@ function delayPromise(seconds) {
  Пример:
    loadAndSortTowns().then(towns => console.log(towns)) // должна вывести в консоль отсортированный массив городов
  */
+
 function loadAndSortTowns() {
-  return new Promise((resolve) => {
-    const request = new XMLHttpRequest();
-    request.open(
-      'GET',
-      'https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json',
-      true
-    );
-
-    request.onload = (request) => {
-      let text = request.currentTarget.responseText.replace(/(\r\n|\n|\r)/gm, ' ');
-      text = text.replace('[', '');
-      text = text.replace(']', '');
-      text = text.replace(/\s/g, '');
-      while (text.includes('{"name":"' && '"}')) {
-        text = text.replace('{"name":"', '');
-        text = text.replace('"}', '');
-      }
-      const array = text.split(',');
-      array.sort();
-      const newArray = array.map((el) => {
-        const obj = {};
-        obj.name = el;
-
-        return obj;
-      });
-      resolve(newArray);
-    };
-    request.send();
-  });
+  return fetch('https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json')
+    .then((res) => res.json())
+    .then((towns) => towns.sort((a, b) => a.name.localeCompare(b.name)));
 }
 
 export { delayPromise, loadAndSortTowns };
