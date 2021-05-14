@@ -33,6 +33,7 @@ import './cookie.html';
    const newDiv = document.createElement('div');
    homeworkContainer.appendChild(newDiv);
  */
+
 const homeworkContainer = document.querySelector('#app');
 // текстовое поле для фильтрации cookie
 const filterNameInput = homeworkContainer.querySelector('#filter-name-input');
@@ -45,8 +46,80 @@ const addButton = homeworkContainer.querySelector('#add-button');
 // таблица со списком cookie
 const listTable = homeworkContainer.querySelector('#list-table tbody');
 
-filterNameInput.addEventListener('input', function () {});
+document.addEventListener('DOMContentLoaded', () => {
+  loadTable(objCookies);
+});
 
-addButton.addEventListener('click', () => {});
+filterNameInput.addEventListener('input', function () {
+  filter(objCookies);
+});
 
-listTable.addEventListener('click', (e) => {});
+addButton.addEventListener('click', () => {
+  document.cookie = `${addNameInput.value} = ${addValueInput.value}`;
+
+  addNameInput.value = '';
+  addValueInput.value = '';
+
+  objCookies = parseCookies();
+
+  filter(objCookies);
+});
+
+function parseCookies() {
+  const cookies = document.cookie.split('; ').reduce((prev, current) => {
+    const [name, value] = current.split('=');
+    prev[name] = value;
+    return prev;
+  }, {});
+
+  return cookies;
+}
+
+let objCookies = parseCookies();
+
+function loadTable(obj) {
+  listTable.innerHTML = '';
+
+  for (const el in obj) {
+    const newCookie = document.createElement('tr');
+    const newCookieName = document.createElement('td');
+    const newCookieValue = document.createElement('td');
+    const deleteButton = document.createElement('button');
+
+    newCookieName.innerHTML = el;
+    newCookieValue.innerHTML = obj[el];
+    deleteButton.innerHTML = 'удалить';
+
+    listTable.insertBefore(newCookie, listTable.firstChild);
+    newCookie.insertBefore(deleteButton, newCookie.firstChild);
+    newCookie.insertBefore(newCookieValue, deleteButton);
+    newCookie.insertBefore(newCookieName, newCookieValue);
+
+    deleteButton.addEventListener('click', (e) => {
+      const parent = e.target.parentElement;
+      const cookieName = parent.firstChild.textContent;
+
+      deleteCookie(cookieName);
+      parent.remove();
+    });
+  }
+}
+
+function deleteCookie(cookieName) {
+  const cookieDate = new Date();
+  cookieDate.setTime(cookieDate.getTime() - 1);
+  document.cookie = cookieName += '=; expires=' + cookieDate.toGMTString();
+}
+
+function filter(obj) {
+  const str = filterNameInput.value;
+  const result = {};
+
+  for (const el in obj) {
+    if (el.includes(str) || obj[el].includes(str)) {
+      result[el] = obj[el];
+    }
+  }
+  loadTable(result);
+  return result;
+}
