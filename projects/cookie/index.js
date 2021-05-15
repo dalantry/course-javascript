@@ -57,9 +57,6 @@ filterNameInput.addEventListener('input', function () {
 addButton.addEventListener('click', () => {
   document.cookie = `${addNameInput.value} = ${addValueInput.value}`;
 
-  addNameInput.value = '';
-  addValueInput.value = '';
-
   objCookies = parseCookies();
 
   filter(objCookies);
